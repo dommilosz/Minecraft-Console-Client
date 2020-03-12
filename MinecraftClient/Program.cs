@@ -97,10 +97,14 @@ namespace MinecraftClient
                     {
                         Settings.SetServerIP(args[2]);
 
-                        //Single command?
                         if (args.Length >= 4)
                         {
-                            Settings.SingleCommand = args[3];
+                            Settings.ServerVersion = args[3];
+                            //Single command?
+                            if (args.Length >= 5)
+                            {
+                                Settings.SingleCommand = args[4];
+                            }
                         }
                     }
                 }
