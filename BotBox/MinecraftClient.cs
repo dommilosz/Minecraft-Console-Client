@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace BotBox
 {
@@ -64,7 +65,7 @@ namespace BotBox
                 Reader = new Thread(new ThreadStart(t_reader));
                 Reader.Start();
             }
-            else throw new FileNotFoundException("Cannot find Minecraft Client Executable!", ExePath);
+            else { MessageBox.Show("MCC NOT FOUND "+ExePath, "MCC NOT FOUND " + ExePath); }
         }
 
         /// <summary>
