@@ -19,6 +19,7 @@ namespace BotBox
         private bool disconnected = false;
         private Process Client;
         private Thread Reader;
+        public int ID;
 
         /// <summary>
         /// Start a client using command-line arguments
@@ -37,8 +38,9 @@ namespace BotBox
         /// <param name="password">Password for the given username</param>
         /// <param name="serverip">Server IP to join</param>
 
-        public MinecraftClient(string username, string password, string serverip,string ver)
+        public MinecraftClient(string username, string password, string serverip,string ver,int ID)
         {
+            this.ID = ID;
             initClient('"' + username + "\" \"" + password + "\" \"" + serverip + "\" \"" +ver+ "\" BasicIO");
         }
 

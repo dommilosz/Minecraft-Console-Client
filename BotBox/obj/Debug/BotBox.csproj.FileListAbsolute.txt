@@ -14,3 +14,4 @@ C:\Users\dommi\source\repos\dommilosz\Minecraft-Console-Client\BotBox\obj\Debug\
 C:\Users\dommi\source\repos\dommilosz\Minecraft-Console-Client\BotBox\bin\Debug\MinecraftClient.exe
 C:\Users\dommi\source\repos\dommilosz\Minecraft-Console-Client\BotBox\bin\Debug\MinecraftClient.pdb
 C:\Users\dommi\source\repos\dommilosz\Minecraft-Console-Client\BotBox\obj\Debug\BotBox.MacroOutput.resources
+C:\Users\dommi\source\repos\dommilosz\Minecraft-Console-Client\BotBox\bin\Debug\DarkUI.dll

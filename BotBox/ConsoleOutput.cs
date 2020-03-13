@@ -84,10 +84,10 @@ namespace BotBox
                 if (version == "") version = "auto";
                 if (username != "" && serverip != "")
                 {
-                    initClient(new MinecraftClient(username, password, serverip, version));
+                    initClient(new MinecraftClient(username, password, serverip, version,Convert.ToInt32( this.Parent.Text.Remove(0,4))));
+                    BotBox.clients.Add(Client);
                     panel1.Visible = false;
                     box_output.Text = "";
-                    box_output.Enabled = true;
                     if (comboBox1.Text != "")
                     {
                         BotBox.macros[comboBox1.SelectedIndex-1].RUN(Client);

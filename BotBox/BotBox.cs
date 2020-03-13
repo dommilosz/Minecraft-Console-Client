@@ -7,10 +7,11 @@ using System.Windows.Forms;
 
 namespace BotBox
 {
-    public partial class BotBox : Form
+    public partial class BotBox : DarkUI.Forms.DarkForm
     {
         public static int ID = 1;
         public static List<Macro> macros = new List<Macro>();
+        public static List<MinecraftClient> clients = new List<MinecraftClient>();
         public static bool exited = false;
         public static string lasttxt = "";
         public BotBox()
@@ -19,9 +20,9 @@ namespace BotBox
             if (File.Exists("macros.bbmcc"))
             {
                 var lines = File.ReadAllLines("macros.bbmcc");
-                for (int i = 0; i < lines.Length; i+=2)
+                for (int i = 0; i < lines.Length; i += 2)
                 {
-                    var cmds = lines[i + 1].Split('!');
+                    var cmds = lines[i + 1].Split('⯃');
 
                     listBox1.Items.Add(lines[i]);
                     macros.Add(new Macro(lines[i], cmds.ToList()));
@@ -69,6 +70,7 @@ namespace BotBox
 
         private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listBox1.SelectedIndex < 0) return;
             MacroOutput mo = new MacroOutput(macros[listBox1.SelectedIndex]);
         }
 
@@ -76,19 +78,21 @@ namespace BotBox
         {
             if (listBox1.SelectedIndex >= 0)
             {
-                richTextBox1.Enabled = true;
+                richTextBox1.ReadOnly = false;
                 string txt = "";
                 foreach (var item in macros[listBox1.SelectedIndex].commands)
                 {
-                    txt+=(item + "\n");
+                    txt += (item + "\n");
                 }
                 richTextBox1.Text = txt;
             }
-            else richTextBox1.Enabled = false;
+            else richTextBox1.ReadOnly = true;
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
+            if (richTextBox1.Text.Contains("⯃"))
+                richTextBox1.Text = richTextBox1.Text.Replace("⯃", "");
             macros[listBox1.SelectedIndex].commands = richTextBox1.Lines.ToList();
         }
 
@@ -104,6 +108,10 @@ namespace BotBox
 
         private void BotBox_FormClosing(object sender, FormClosingEventArgs e)
         {
+            foreach (var item in clients)
+            {
+                item.Close();
+            }
             List<string> lines = new List<string>();
             foreach (var item in macros)
             {
@@ -111,15 +119,43 @@ namespace BotBox
                 string cmdstext = "";
                 foreach (var cmds in item.commands)
                 {
-                    cmdstext += cmds + "!";
+                    cmdstext += cmds + "⯃";
                 }
-                cmdstext = cmdstext.Trim('!');
+                cmdstext = cmdstext.Trim('⯃');
                 lines.Add(cmdstext);
             }
             File.WriteAllLines("macros.bbmcc", lines);
             Application.ExitThread();
             Application.Exit();
             exited = true;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            for (int i = 0; i < Macro.macros.Count; i++)
+            {
+                if (i + 1 > Macro.macros.Count) break;
+                if (!Macro.macros[i].isRunning) Macro.macros.RemoveAt(i);
+            }
+            int countp = listBox2.Items.Count;
+            if (countp == Macro.macros.Count) return;
+            listBox2.Items.Clear();
+            if (Macro.macros.Count > 0)
+                foreach (var item in Macro.macros)
+                {
+                    listBox2.Items.Add(item.description);
+                }
+        }
+
+        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            contextMenuStrip1.Enabled = true;
+            if (listBox2.SelectedIndex < 0) contextMenuStrip1.Enabled = false;
+        }
+
+        private void kILLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Macro.macros[listBox2.SelectedIndex].thread.Abort();
         }
     }
 
@@ -129,6 +165,8 @@ namespace BotBox
         public string name;
         public List<Region> regions;
         public List<Variable> vars;
+        public static List<MacroThread> macros = new List<MacroThread>();
+        public Thread thread;
         bool testmode = false;
         MinecraftClient mcclient;
         RichTextBox rc;
@@ -142,12 +180,13 @@ namespace BotBox
         {
             testmode = false;
             mcclient = client;
-            RUN();
+            RUN($"BOT {client.ID}");
         }
-        void RUN()
+        void RUN(string location)
         {
             ThreadStart ts = new ThreadStart(RUNinAsync);
             Thread t = new Thread(ts);
+            macros.Add(new MacroThread(t, $"{name} in [{location}]"));
             t.Start();
         }
         void RUNinAsync()
@@ -240,7 +279,7 @@ namespace BotBox
         {
             testmode = true;
             rc = output;
-            RUN();
+            RUN("test");
         }
         public class Region
         {
@@ -302,9 +341,17 @@ namespace BotBox
                 }
             }
         }
-        public void Write()
-        {
+    }
 
+    public class MacroThread
+    {
+        public Thread thread;
+        public string description;
+        public bool isRunning { get { return thread.IsAlive; } }
+        public MacroThread(Thread t, string desc)
+        {
+            thread = t;
+            description = desc;
         }
     }
 }
