@@ -74,7 +74,7 @@ namespace BotBox
 
         private void t_reader()
         {
-            while (true)
+            while (true&&!BotBox.exited)
             {
                 try
                 {
@@ -113,7 +113,11 @@ namespace BotBox
 
         public string ReadLine()
         {
-            while (OutputBuffer.Count < 1) { }
+            while (OutputBuffer.Count < 1&&!BotBox.exited) { }
+            if (BotBox.exited) 
+            { 
+                return "";
+            }
             string line = OutputBuffer.First.Value;
             OutputBuffer.RemoveFirst();
             return line;

@@ -41,11 +41,15 @@
             this.box_output = new System.Windows.Forms.RichTextBox();
             this.box_input = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.comboBox1);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.textBox4);
@@ -57,12 +61,12 @@
             this.panel1.Controls.Add(this.box_Login);
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(240, 131);
+            this.panel1.Size = new System.Drawing.Size(240, 154);
             this.panel1.TabIndex = 0;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(6, 105);
+            this.button1.Location = new System.Drawing.Point(6, 131);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(231, 23);
             this.button1.TabIndex = 8;
@@ -168,6 +172,25 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // comboBox1
+            // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(61, 108);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(176, 21);
+            this.comboBox1.TabIndex = 9;
+            this.comboBox1.DropDown += new System.EventHandler(this.comboBox1_DropDown);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(18, 111);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(37, 13);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Macro";
+            // 
             // ConsoleOutput
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -200,5 +223,7 @@
         private System.Windows.Forms.RichTextBox box_output;
         private System.Windows.Forms.TextBox box_input;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label5;
+        public System.Windows.Forms.ComboBox comboBox1;
     }
 }

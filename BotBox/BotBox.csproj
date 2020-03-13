@@ -61,6 +61,12 @@
     <Compile Include="ConsoleOutput.Designer.cs">
       <DependentUpon>ConsoleOutput.cs</DependentUpon>
     </Compile>
+    <Compile Include="MacroOutput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MacroOutput.Designer.cs">
+      <DependentUpon>MacroOutput.cs</DependentUpon>
+    </Compile>
     <Compile Include="MinecraftClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +75,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ConsoleOutput.resx">
       <DependentUpon>ConsoleOutput.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MacroOutput.resx">
+      <DependentUpon>MacroOutput.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

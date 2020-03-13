@@ -63,25 +63,38 @@ namespace BotBox
 
         private void btn_connect_Click(object sender, EventArgs e)
         {
-            if (Client != null)
+            InitClientClick();
+        }
+
+        public void InitClientClick()
+        {
+            try
             {
-                Client.Close();
-                t_clientread.Abort();
-                box_output.Text = "";
+                if (Client != null)
+                {
+                    Client.Close();
+                    t_clientread.Abort();
+                    box_output.Text = "";
+                }
+                string username = box_Login.Text;
+                string password = box_password.Text;
+                string serverip = box_ip.Text;
+                string version = textBox4.Text;
+                if (password == "") { password = "-"; }
+                if (version == "") version = "auto";
+                if (username != "" && serverip != "")
+                {
+                    initClient(new MinecraftClient(username, password, serverip, version));
+                    panel1.Visible = false;
+                    box_output.Text = "";
+                    box_output.Enabled = true;
+                    if (comboBox1.Text != "")
+                    {
+                        BotBox.macros[comboBox1.SelectedIndex-1].RUN(Client);
+                    }
+                }
             }
-            string username = box_Login.Text;
-            string password = box_password.Text;
-            string serverip = box_ip.Text;
-            string version = textBox4.Text;
-            if (password == "") { password = "-"; }
-            if (version == "") version = "auto";
-            if (username != "" && serverip != "")
-            {
-                initClient(new MinecraftClient(username, password, serverip,version));
-                panel1.Visible = false;
-                box_output.Text = "";
-                box_output.Enabled = true;
-            }
+            catch(Exception ex) { MessageBox.Show(ex.ToString(),ex.ToString()); }
         }
 
         /// <summary>
@@ -103,7 +116,7 @@ namespace BotBox
 
         private void t_clientread_loop()
         {
-            while (true && !Client.Disconnected)
+            while (true && !Client.Disconnected&&!BotBox.exited)
             {
                 printstring(Client.ReadLine());
             }
@@ -179,6 +192,7 @@ namespace BotBox
 
         private void AppendTextBox(RichTextBox box, string text, Color color, FontStyle style)
         {
+            BotBox.lasttxt = text;
             if (InvokeRequired)
             {
                 this.Invoke(new Action<RichTextBox, string, Color, FontStyle>(AppendTextBox), new object[] { box, text, color, style });
@@ -339,6 +353,17 @@ namespace BotBox
         private void button2_Click(object sender, EventArgs e)
         {
             btn_send_Click(sender, e);
+        }
+
+        private void comboBox1_DropDown(object sender, EventArgs e)
+        {
+            comboBox1.Items.Clear();
+            var macros = BotBox.macros;
+            comboBox1.Items.Add("");
+            foreach (var item in macros)
+            {
+                comboBox1.Items.Add(item.name);
+            }
         }
     }
 }
