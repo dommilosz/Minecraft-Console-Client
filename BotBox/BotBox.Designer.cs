@@ -50,15 +50,16 @@ namespace BotBox
             this.rEMOVEMACRoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tESTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.darkCheckBox1 = new DarkUI.Controls.DarkCheckBox();
             this.darkButton1 = new DarkUI.Controls.DarkButton();
             this.listBox3 = new System.Windows.Forms.ListBox();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.menuStrip1 = new DarkUI.Controls.DarkMenuStrip();
             this.bOXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dELETEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.panel3 = new System.Windows.Forms.Panel();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -240,6 +241,7 @@ namespace BotBox
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.tabPage1.Controls.Add(this.darkCheckBox1);
             this.tabPage1.Controls.Add(this.darkButton1);
             this.tabPage1.Controls.Add(this.listBox3);
             this.tabPage1.Controls.Add(this.panel3);
@@ -249,6 +251,17 @@ namespace BotBox
             this.tabPage1.Size = new System.Drawing.Size(792, 400);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "AUTOSTART";
+            // 
+            // darkCheckBox1
+            // 
+            this.darkCheckBox1.AutoSize = true;
+            this.darkCheckBox1.Checked = true;
+            this.darkCheckBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.darkCheckBox1.Location = new System.Drawing.Point(340, 199);
+            this.darkCheckBox1.Name = "darkCheckBox1";
+            this.darkCheckBox1.Size = new System.Drawing.Size(137, 17);
+            this.darkCheckBox1.TabIndex = 4;
+            this.darkCheckBox1.Text = "ENABLE AUTOSTART";
             // 
             // darkButton1
             // 
@@ -270,6 +283,13 @@ namespace BotBox
             this.listBox3.Name = "listBox3";
             this.listBox3.Size = new System.Drawing.Size(333, 400);
             this.listBox3.TabIndex = 0;
+            // 
+            // panel3
+            // 
+            this.panel3.Location = new System.Drawing.Point(339, 3);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(248, 189);
+            this.panel3.TabIndex = 3;
             // 
             // menuStrip1
             // 
@@ -317,16 +337,8 @@ namespace BotBox
             // 
             // timer2
             // 
-            this.timer2.Enabled = true;
             this.timer2.Interval = 10;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
-            // panel3
-            // 
-            this.panel3.Location = new System.Drawing.Point(339, 3);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(248, 189);
-            this.panel3.TabIndex = 3;
             // 
             // BotBox
             // 
@@ -351,6 +363,7 @@ namespace BotBox
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();
             this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -385,6 +398,7 @@ namespace BotBox
         private DarkButton darkButton1;
         private Timer timer2;
         private Panel panel3;
+        private DarkCheckBox darkCheckBox1;
     }
 }
 

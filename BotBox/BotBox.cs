@@ -27,6 +27,11 @@ namespace BotBox
                 var lines = File.ReadAllLines("macros.bbmcc").ToList();
                 var lines2 = File.ReadAllLines("macros.bbmcc").ToList();
                 var startlines = new List<string>();
+                if (lines[0].Contains("⯃AS-0"))
+                {
+                    darkCheckBox1.Enabled = false;
+                    lines2.RemoveAt(0);
+                }
                 for (int i = 0; i < lines.Count; i ++)
                 {
                     if (lines[i].Contains("⯃START⯃"))
@@ -46,6 +51,7 @@ namespace BotBox
                 }
                 
             }
+            timer2.Start();
         }
 
         private void bOXToolStripMenuItem_Click(object sender, EventArgs e)
@@ -131,6 +137,7 @@ namespace BotBox
                 item.Close();
             }
             List<string> lines = new List<string>();
+            if (darkCheckBox1.Enabled) lines.Add("⯃AS-0");
             if(autostart.Count>0)
             lines.AddRange(autostart);
             foreach (var item in macros)
@@ -225,7 +232,7 @@ namespace BotBox
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (autostart.Count > 0) DoAutostart();
+            if (autostart.Count > 0&&darkCheckBox1.Enabled) DoAutostart();
             timer2.Enabled = false;
         }
     }
