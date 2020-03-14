@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -31,7 +32,7 @@ namespace BotBox
                     if (lines[i].Contains("⯃START⯃"))
                     {
                         AddAutostart((lines[i].Replace("⯃START⯃", "")));
-                        lines2.RemoveAt(i);
+                        lines2.RemoveAt(0);
                     }
                 }
                 for (int i = 0; i < lines2.Count; i += 2)
@@ -144,6 +145,7 @@ namespace BotBox
                 lines.Add(cmdstext);
             }
             File.WriteAllLines("macros.bbmcc", lines);
+            
             Application.ExitThread();
             Application.Exit();
             exited = true;
@@ -316,7 +318,7 @@ namespace BotBox
                                 case "@goto": { i = Region.RecoRegions(regions, parts[1]); break; }
                                 case "@await":
                                     {
-                                        while (true)
+                                        while (true&&!BotBox.exited)
                                         {
                                             if (testmode) break;
                                             string txt = item.Remove(0, 6);
