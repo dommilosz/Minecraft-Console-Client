@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
 namespace BotBox
 {
-    public class MinecraftClient
+    public class MCCClient
     {
         public static string ExePath = "MinecraftClient.exe";
         public bool Disconnected { get { return disconnected; } }
@@ -26,7 +25,7 @@ namespace BotBox
         /// </summary>
         /// <param name="args">Arguments to pass</param>
 
-        public MinecraftClient(string[] args)
+        public MCCClient(string[] args)
         {
             initClient("\"" + String.Join("\" \"", args) + "\" BasicIO");
         }
@@ -38,10 +37,10 @@ namespace BotBox
         /// <param name="password">Password for the given username</param>
         /// <param name="serverip">Server IP to join</param>
 
-        public MinecraftClient(string username, string password, string serverip,string ver,int ID)
+        public MCCClient(string username, string password, string serverip, string ver, int ID)
         {
             this.ID = ID;
-            initClient('"' + username + "\" \"" + password + "\" \"" + serverip + "\" \"" +ver+ "\" BasicIO");
+            initClient('"' + username + "\" \"" + password + "\" \"" + serverip + "\" \"" + ver + "\" BasicIO");
         }
 
         /// <summary>
@@ -67,7 +66,7 @@ namespace BotBox
                 Reader = new Thread(new ThreadStart(t_reader));
                 Reader.Start();
             }
-            else { MessageBox.Show("MCC NOT FOUND "+ExePath, "MCC NOT FOUND " + ExePath); }
+            else { MessageBox.Show("MCC NOT FOUND " + ExePath, "MCC NOT FOUND " + ExePath); }
         }
 
         /// <summary>
@@ -76,7 +75,7 @@ namespace BotBox
 
         private void t_reader()
         {
-            while (true&&!BotBox.exited)
+            while (true && !BotBox.exited)
             {
                 try
                 {
@@ -115,9 +114,9 @@ namespace BotBox
 
         public string ReadLine()
         {
-            while (OutputBuffer.Count < 1&&!BotBox.exited) { }
-            if (BotBox.exited) 
-            { 
+            while (OutputBuffer.Count < 1 && !BotBox.exited) { }
+            if (BotBox.exited)
+            {
                 return "";
             }
             string line = OutputBuffer.First.Value;

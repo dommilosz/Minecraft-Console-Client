@@ -46,6 +46,7 @@ namespace BotBox
             this.box_output = new System.Windows.Forms.RichTextBox();
             this.box_input = new DarkUI.Controls.DarkTextBox();
             this.button2 = new DarkUI.Controls.DarkButton();
+            this.darkButton1 = new DarkUI.Controls.DarkButton();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,6 +66,7 @@ namespace BotBox
             this.panel1.Controls.Add(this.box_ip);
             this.panel1.Controls.Add(this.box_password);
             this.panel1.Controls.Add(this.box_Login);
+            this.panel1.Controls.Add(this.darkButton1);
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(240, 157);
@@ -217,6 +219,16 @@ namespace BotBox
             this.button2.Text = ">";
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // darkButton1
+            // 
+            this.darkButton1.Location = new System.Drawing.Point(6, 131);
+            this.darkButton1.Name = "darkButton1";
+            this.darkButton1.Padding = new System.Windows.Forms.Padding(5);
+            this.darkButton1.Size = new System.Drawing.Size(231, 23);
+            this.darkButton1.TabIndex = 11;
+            this.darkButton1.Text = "ADD";
+            this.darkButton1.Click += new System.EventHandler(this.darkButton1_Click);
+            // 
             // ConsoleOutput
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -236,21 +248,21 @@ namespace BotBox
         }
 
         #endregion
-
-        private Panel panel1;
-        private RichTextBox box_output;
-        private DarkButton button1;
-        private DarkLabel label4;
-        private DarkTextBox textBox4;
-        private DarkLabel label3;
-        private DarkLabel label2;
-        private DarkLabel label1;
-        private DarkTextBox box_ip;
-        private DarkTextBox box_password;
-        private DarkTextBox box_Login;
-        private DarkTextBox box_input;
-        private DarkButton button2;
-        private DarkLabel label5;
         public DarkComboBox comboBox1;
+        public Panel panel1;
+        public RichTextBox box_output;
+        public DarkButton button1;
+        public DarkLabel label4;
+        public DarkTextBox textBox4;
+        public DarkLabel label3;
+        public DarkLabel label2;
+        public DarkLabel label1;
+        public DarkTextBox box_ip;
+        public DarkTextBox box_password;
+        public DarkTextBox box_Login;
+        public DarkTextBox box_input;
+        public DarkButton button2;
+        public DarkLabel label5;
+        public DarkButton darkButton1;
     }
 }

@@ -23,7 +23,7 @@ namespace MinecraftClient
     ///  - Mark new version as handled (see ProtocolHandler.cs)
     ///  - Update MCHighestVersion field below (for versionning)
     /// </remarks>
-    static class Program
+    public static class Program
     {
         private static McTcpClient Client;
         public static string[] startupargs;
@@ -39,7 +39,7 @@ namespace MinecraftClient
         /// <summary>
         /// The main entry point of Minecraft Console Client
         /// </summary>
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.WriteLine("Console Client for MC {0} to {1} - v{2} - By ORelio & Contributors", MCLowestVersion, MCHighestVersion, Version);
 

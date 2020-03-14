@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace BotBox
 {
     public partial class ConsoleOutput : UserControl
     {
         private LinkedList<string> previous = new LinkedList<string>();
-        public MinecraftClient Client;
+        public MCCClient Client;
         private Thread t_clientread;
 
         #region Aero Glass Low-level Windows API
@@ -36,6 +31,14 @@ namespace BotBox
         public ConsoleOutput()
         {
             InitializeComponent();
+        }
+        public void AddBox()
+        {
+            button1.Visible = false;
+            box_input.Visible = false;
+            box_output.Visible = false;
+            darkButton1.Visible = true;
+            button2.Visible = false;
         }
 
         /// <summary>
@@ -84,17 +87,40 @@ namespace BotBox
                 if (version == "") version = "auto";
                 if (username != "" && serverip != "")
                 {
-                    initClient(new MinecraftClient(username, password, serverip, version,Convert.ToInt32( this.Parent.Text.Remove(0,4))));
+                    initClient(new MCCClient(username, password, serverip, version, Convert.ToInt32(this.Parent.Text.Remove(0, 4))));
                     BotBox.clients.Add(Client);
                     panel1.Visible = false;
                     box_output.Text = "";
                     if (comboBox1.Text != "")
                     {
-                        BotBox.macros[comboBox1.SelectedIndex-1].RUN(Client);
+                        BotBox.macros[comboBox1.SelectedIndex - 1].RUN(Client);
                     }
                 }
             }
-            catch(Exception ex) { MessageBox.Show(ex.ToString(),ex.ToString()); }
+            catch (Exception ex) { MessageBox.Show(ex.ToString(), ex.ToString()); }
+        }
+        public void InitClientClick(string username,string password,string serverip,string version,string macro)
+        {
+            try
+            {
+                if (Client != null)
+                {
+                    Client.Close();
+                    t_clientread.Abort();
+                    box_output.Text = "";
+                }
+                {
+                    initClient(new MCCClient(username, password, serverip, version, Convert.ToInt32(this.Parent.Text.Remove(0, 4))));
+                    BotBox.clients.Add(Client);
+                    panel1.Visible = false;
+                    box_output.Text = "";
+                    if (macro != "")
+                    {
+                        Macro.GetByName(macro,BotBox.macros).RUN(Client);
+                    }
+                }
+            }
+            catch (Exception ex) { MessageBox.Show(ex.ToString(), ex.ToString()); }
         }
 
         /// <summary>
@@ -102,7 +128,7 @@ namespace BotBox
         /// </summary>
         /// <param name="client">Client to handle</param>
 
-        private void initClient(MinecraftClient client)
+        private void initClient(MCCClient client)
         {
             Client = client;
             t_clientread = new Thread(new ThreadStart(t_clientread_loop));
@@ -116,7 +142,7 @@ namespace BotBox
 
         private void t_clientread_loop()
         {
-            while (true && !Client.Disconnected&&!BotBox.exited)
+            while (true && !Client.Disconnected && !BotBox.exited)
             {
                 printstring(Client.ReadLine());
             }
@@ -363,6 +389,20 @@ namespace BotBox
             foreach (var item in macros)
             {
                 comboBox1.Items.Add(item.name);
+            }
+        }
+
+        private void darkButton1_Click(object sender, EventArgs e)
+        {
+            string username = box_Login.Text;
+            string password = box_password.Text;
+            string serverip = box_ip.Text;
+            string version = textBox4.Text;
+            if (password == "") { password = "-"; }
+            if (version == "") version = "auto";
+            if (username != "" && serverip != "")
+            {
+                ((BotBox)Parent.FindForm()).AddAutostart($"{username}⯃{password}⯃{serverip}⯃{version}⯃{comboBox1.Text}");
             }
         }
     }

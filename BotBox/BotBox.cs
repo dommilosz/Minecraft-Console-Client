@@ -11,22 +11,39 @@ namespace BotBox
     {
         public static int ID = 1;
         public static List<Macro> macros = new List<Macro>();
-        public static List<MinecraftClient> clients = new List<MinecraftClient>();
+        public static List<MCCClient> clients = new List<MCCClient>();
         public static bool exited = false;
         public static string lasttxt = "";
+        public static List<string> autostart = new List<string>();
         public BotBox()
         {
             InitializeComponent();
+            var consoleOutput1 = new ConsoleOutput();
+            consoleOutput1.AddBox();
+            panel3.Controls.Add(consoleOutput1);
             if (File.Exists("macros.bbmcc"))
             {
-                var lines = File.ReadAllLines("macros.bbmcc");
-                for (int i = 0; i < lines.Length; i += 2)
+                var lines = File.ReadAllLines("macros.bbmcc").ToList();
+                var lines2 = File.ReadAllLines("macros.bbmcc").ToList();
+                var startlines = new List<string>();
+                for (int i = 0; i < lines.Count; i ++)
                 {
-                    var cmds = lines[i + 1].Split('⯃');
-
-                    listBox1.Items.Add(lines[i]);
-                    macros.Add(new Macro(lines[i], cmds.ToList()));
+                    if (lines[i].Contains("⯃START⯃"))
+                    {
+                        AddAutostart((lines[i].Replace("⯃START⯃", "")));
+                        lines2.RemoveAt(i);
+                    }
                 }
+                for (int i = 0; i < lines2.Count; i += 2)
+                {
+                    if (!lines2[i].Contains("⯃START⯃"))
+                    {
+                        var cmds = lines2[i + 1].Split('⯃');
+                        listBox1.Items.Add(lines2[i]);
+                        macros.Add(new Macro(lines2[i], cmds.ToList()));
+                    }
+                }
+                
             }
         }
 
@@ -113,6 +130,8 @@ namespace BotBox
                 item.Close();
             }
             List<string> lines = new List<string>();
+            if(autostart.Count>0)
+            lines.AddRange(autostart);
             foreach (var item in macros)
             {
                 lines.Add(item.name);
@@ -157,6 +176,56 @@ namespace BotBox
         {
             Macro.macros[listBox2.SelectedIndex].thread.Abort();
         }
+
+        private void BotBox_Resize(object sender, EventArgs e)
+        {
+            if(WindowState == FormWindowState.Minimized)
+            {
+                this.ShowInTaskbar = false;
+                notifyIcon1.Visible = true;
+            }
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            this.ShowInTaskbar = true;
+            notifyIcon1.Visible = false;
+            this.WindowState = FormWindowState.Normal;
+        }
+        public void AddAutostart(string item)
+        {
+            listBox3.Items.Add(item.Replace("⯃", " | "));
+            autostart.Add("⯃START⯃" + item);
+        }
+        public void DoAutostart()
+        {
+            foreach (var item in autostart)
+            {
+                var item2 = item.Replace("⯃START⯃", "");
+                var tp = new TabPage($"BOT {ID}");
+                ID++;
+                var cc = new ConsoleOutput();
+                var items = item2.Split('⯃');
+                tp.Controls.Add(cc);
+                tabControl1.TabPages.Add(tp);
+                cc.InitClientClick(items[0],items[1],items[2],items[3],items[4]);
+                cc.Dock = DockStyle.Fill;
+            }
+        }
+
+        private void darkButton1_Click(object sender, EventArgs e)
+        {
+            if (listBox3.SelectedIndex < 0) return;
+            int i = listBox3.SelectedIndex;
+            listBox3.Items.RemoveAt(i);
+            autostart.RemoveAt(i);
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            if (autostart.Count > 0) DoAutostart();
+            timer2.Enabled = false;
+        }
     }
 
     public class Macro
@@ -168,7 +237,7 @@ namespace BotBox
         public static List<MacroThread> macros = new List<MacroThread>();
         public Thread thread;
         bool testmode = false;
-        MinecraftClient mcclient;
+        MCCClient mcclient;
         RichTextBox rc;
 
         public Macro(string name, List<string> cmds)
@@ -176,7 +245,15 @@ namespace BotBox
             commands = cmds;
             this.name = name;
         }
-        public void RUN(MinecraftClient client)
+        public static Macro GetByName(string name,List<Macro> macros)
+        {
+            foreach (var item in macros)
+            {
+                if (item.name == name) return item;
+            }
+            return null;
+        }
+        public void RUN(MCCClient client)
         {
             testmode = false;
             mcclient = client;
