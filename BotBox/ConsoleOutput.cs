@@ -144,7 +144,7 @@ namespace BotBox
         {
             while (true && !Client.Disconnected && !BotBox.exited)
             {
-                if (MCCClient.OutputBuffer.Count > 0) 
+                if (Client.OutputBuffer.Count > 0) 
                 printstring(Client.ReadLine());
                 Thread.Sleep(10);
             }

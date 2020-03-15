@@ -13,7 +13,7 @@ namespace BotBox
         public static string ExePath = "MinecraftClient.exe";
         public bool Disconnected { get { return disconnected; } }
 
-        public static LinkedList<string> OutputBuffer = new LinkedList<string>();
+        public LinkedList<string> OutputBuffer = new LinkedList<string>();
         private LinkedList<string> tabAutoCompleteBuffer = new LinkedList<string>();
         private bool disconnected = false;
         private Process Client;
