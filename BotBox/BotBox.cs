@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -33,7 +32,7 @@ namespace BotBox
                     darkCheckBox1.Checked = false;
                     lines2.RemoveAt(0);
                 }
-                for (int i = 0; i < lines.Count; i ++)
+                for (int i = 0; i < lines.Count; i++)
                 {
                     if (lines[i].Contains("⯃START⯃"))
                     {
@@ -50,7 +49,7 @@ namespace BotBox
                         macros.Add(new Macro(lines2[i], cmds.ToList()));
                     }
                 }
-                
+
             }
             timer2.Start();
         }
@@ -133,30 +132,43 @@ namespace BotBox
 
         private void BotBox_FormClosing(object sender, FormClosingEventArgs e)
         {
-            foreach (var item in clients)
+            e.Cancel = true;
+            var tmp = MessageBox.Show("YES - EXIT \nNO - MINIMIZE", "EXIT OR MINIMIZE?", MessageBoxButtons.YesNoCancel);
+            if (tmp == DialogResult.Yes)
             {
-                item.Close();
-            }
-            List<string> lines = new List<string>();
-            if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
-            if(autostart.Count>0)
-            lines.AddRange(autostart);
-            foreach (var item in macros)
-            {
-                lines.Add(item.name);
-                string cmdstext = "";
-                foreach (var cmds in item.commands)
+                foreach (var item in clients)
                 {
-                    cmdstext += cmds + "⯃";
+                    item.Close();
                 }
-                cmdstext = cmdstext.Trim('⯃');
-                lines.Add(cmdstext);
+                List<string> lines = new List<string>();
+                if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
+                if (autostart.Count > 0)
+                    lines.AddRange(autostart);
+                foreach (var item in macros)
+                {
+                    lines.Add(item.name);
+                    string cmdstext = "";
+                    foreach (var cmds in item.commands)
+                    {
+                        cmdstext += cmds + "⯃";
+                    }
+                    cmdstext = cmdstext.Trim('⯃');
+                    lines.Add(cmdstext);
+                }
+                File.WriteAllLines("macros.bbmcc", lines);
+
+                Application.ExitThread();
+                Application.Exit();
+                exited = true;
+                e.Cancel = false;
             }
-            File.WriteAllLines("macros.bbmcc", lines);
-            
-            Application.ExitThread();
-            Application.Exit();
-            exited = true;
+            if (tmp == DialogResult.No)
+            {
+                this.ShowInTaskbar = false;
+                notifyIcon1.Visible = true;
+                this.WindowState = FormWindowState.Minimized;
+                e.Cancel = true;
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -189,11 +201,7 @@ namespace BotBox
 
         private void BotBox_Resize(object sender, EventArgs e)
         {
-            if(WindowState == FormWindowState.Minimized)
-            {
-                this.ShowInTaskbar = false;
-                notifyIcon1.Visible = true;
-            }
+
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -218,7 +226,7 @@ namespace BotBox
                 var items = item2.Split('⯃');
                 tp.Controls.Add(cc);
                 tabControl1.TabPages.Add(tp);
-                cc.InitClientClick(items[0],items[1],items[2],items[3],items[4]);
+                cc.InitClientClick(items[0], items[1], items[2], items[3], items[4]);
                 cc.Dock = DockStyle.Fill;
             }
         }
@@ -233,7 +241,7 @@ namespace BotBox
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (autostart.Count > 0&&darkCheckBox1.Checked) DoAutostart();
+            if (autostart.Count > 0 && darkCheckBox1.Checked) DoAutostart();
             timer2.Enabled = false;
         }
     }
@@ -253,7 +261,7 @@ namespace BotBox
             commands = cmds;
             this.name = name;
         }
-        public static Macro GetByName(string name,List<Macro> macros)
+        public static Macro GetByName(string name, List<Macro> macros)
         {
             foreach (var item in macros)
             {
@@ -264,9 +272,9 @@ namespace BotBox
         public void RUN(MCCClient client)
         {
             testmode = false;
-            RUN($"BOT {client.ID}",new OutputWriter(client));
+            RUN($"BOT {client.ID}", new OutputWriter(client));
         }
-        void RUN(string location,object output)
+        void RUN(string location, object output)
         {
             ParameterizedThreadStart pts = new ParameterizedThreadStart(RUNinAsync);
             Thread t = new Thread(pts);
@@ -317,7 +325,7 @@ namespace BotBox
                                 case "@goto": { i = Region.RecoRegions(regions, parts[1]); break; }
                                 case "@await":
                                     {
-                                        while (true&&!BotBox.exited)
+                                        while (true && !BotBox.exited)
                                         {
                                             if (testmode) break;
                                             string txt = item.Remove(0, 6);
@@ -444,7 +452,7 @@ namespace BotBox
             {
                 var rc = RichTextBox;
                 if (MCCClient != null) MCCClient.SendText(txt);
-                if (rc!=null&&rc.InvokeRequired) rc.Invoke((MethodInvoker)(() => rc.AppendText(txt + "\n")));
+                if (rc != null && rc.InvokeRequired) rc.Invoke((MethodInvoker)(() => rc.AppendText(txt + "\n")));
             }
         }
     }
