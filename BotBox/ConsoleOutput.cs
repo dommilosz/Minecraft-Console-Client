@@ -144,7 +144,9 @@ namespace BotBox
         {
             while (true && !Client.Disconnected && !BotBox.exited)
             {
+                if (MCCClient.OutputBuffer.Count > 0) 
                 printstring(Client.ReadLine());
+                Thread.Sleep(10);
             }
         }
 
@@ -218,7 +220,8 @@ namespace BotBox
 
         private void AppendTextBox(RichTextBox box, string text, Color color, FontStyle style)
         {
-            BotBox.lasttxt = text;
+            BotBox.lasttxts.Add(text);
+            if (BotBox.lasttxts.Count > 8) BotBox.lasttxts.RemoveAt(0);
             if (InvokeRequired)
             {
                 this.Invoke(new Action<RichTextBox, string, Color, FontStyle>(AppendTextBox), new object[] { box, text, color, style });

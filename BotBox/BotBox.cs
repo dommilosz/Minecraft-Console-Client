@@ -14,8 +14,9 @@ namespace BotBox
         public static List<Macro> macros = new List<Macro>();
         public static List<MCCClient> clients = new List<MCCClient>();
         public static bool exited = false;
-        public static string lasttxt = "";
+        public static List<string> lasttxts = new List<string>();
         public static List<string> autostart = new List<string>();
+        public static FormWindowState state = FormWindowState.Normal;
         public BotBox()
         {
             InitializeComponent();
@@ -321,8 +322,14 @@ namespace BotBox
                                             if (testmode) break;
                                             string txt = item.Remove(0, 6);
                                             txt = txt.Trim();
-                                            string lasttxt = BotBox.lasttxt;
-                                            if (lasttxt.Contains(txt)) break;
+                                            var lasttxts2 = BotBox.lasttxts.ToArray();
+                                            bool b = false;
+                                            foreach (var item2 in lasttxts2)
+                                            {
+                                                if (item2.Contains(txt)) b = true;
+                                            }
+                                            if (b) break;
+                                            Thread.Sleep(100);
                                         }
                                         break;
                                     }
