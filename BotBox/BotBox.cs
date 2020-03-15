@@ -29,7 +29,7 @@ namespace BotBox
                 var startlines = new List<string>();
                 if (lines[0].Contains("⯃AS-0"))
                 {
-                    darkCheckBox1.Enabled = false;
+                    darkCheckBox1.Checked = false;
                     lines2.RemoveAt(0);
                 }
                 for (int i = 0; i < lines.Count; i ++)
@@ -137,7 +137,7 @@ namespace BotBox
                 item.Close();
             }
             List<string> lines = new List<string>();
-            if (darkCheckBox1.Enabled) lines.Add("⯃AS-0");
+            if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
             if(autostart.Count>0)
             lines.AddRange(autostart);
             foreach (var item in macros)
@@ -232,7 +232,7 @@ namespace BotBox
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (autostart.Count > 0&&darkCheckBox1.Enabled) DoAutostart();
+            if (autostart.Count > 0&&darkCheckBox1.Checked) DoAutostart();
             timer2.Enabled = false;
         }
     }
@@ -246,8 +246,6 @@ namespace BotBox
         public static List<MacroThread> macros = new List<MacroThread>();
         public Thread thread;
         bool testmode = false;
-        MCCClient mcclient;
-        RichTextBox rc;
 
         public Macro(string name, List<string> cmds)
         {
@@ -265,18 +263,18 @@ namespace BotBox
         public void RUN(MCCClient client)
         {
             testmode = false;
-            mcclient = client;
-            RUN($"BOT {client.ID}");
+            RUN($"BOT {client.ID}",new OutputWriter(client));
         }
-        void RUN(string location)
+        void RUN(string location,object output)
         {
-            ThreadStart ts = new ThreadStart(RUNinAsync);
-            Thread t = new Thread(ts);
+            ParameterizedThreadStart pts = new ParameterizedThreadStart(RUNinAsync);
+            Thread t = new Thread(pts);
             macros.Add(new MacroThread(t, $"{name} in [{location}]"));
-            t.Start();
+            t.Start(output);
         }
-        void RUNinAsync()
+        void RUNinAsync(object output)
         {
+            var outputinclass = (OutputWriter)output;
             var cmds = commands;
             regions = new List<Region>();
             vars = new List<Variable>();
@@ -305,14 +303,7 @@ namespace BotBox
                         {
                             try
                             {
-                                if (!testmode)
-                                {
-                                    mcclient.SendText(item);
-                                }
-                                else
-                                {
-                                    if (rc.InvokeRequired) rc.Invoke((MethodInvoker)(() => rc.AppendText(item + "\n")));
-                                }
+                                outputinclass.Write(item);
                                 break;
                             }
                             catch { return; }
@@ -364,8 +355,7 @@ namespace BotBox
         public void RUN(RichTextBox output)
         {
             testmode = true;
-            rc = output;
-            RUN("test");
+            RUN("test", new OutputWriter(output));
         }
         public class Region
         {
@@ -425,6 +415,29 @@ namespace BotBox
                 {
                     if (item.name == name) item.value = value;
                 }
+            }
+        }
+        public class OutputWriter
+        {
+            public static readonly int MCCWrite = 1;
+            public static readonly int RTBWrite = 2;
+            public RichTextBox RichTextBox;
+            public MCCClient MCCClient;
+
+            public int type;
+            public OutputWriter(MCCClient mcc)
+            {
+                MCCClient = mcc;
+            }
+            public OutputWriter(RichTextBox rc)
+            {
+                RichTextBox = rc;
+            }
+            public void Write(string txt)
+            {
+                var rc = RichTextBox;
+                if (MCCClient != null) MCCClient.SendText(txt);
+                if (rc!=null&&rc.InvokeRequired) rc.Invoke((MethodInvoker)(() => rc.AppendText(txt + "\n")));
             }
         }
     }
