@@ -32,6 +32,10 @@ namespace BotBox
                     darkCheckBox1.Checked = false;
                     lines2.RemoveAt(0);
                 }
+                if (lines[0].Contains("⯃AS-1"))
+                {
+                    lines2.RemoveAt(0);
+                }
                 for (int i = 0; i < lines.Count; i++)
                 {
                     if (lines[i].Contains("⯃START⯃"))
@@ -142,6 +146,7 @@ namespace BotBox
                 }
                 List<string> lines = new List<string>();
                 if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
+                if (darkCheckBox1.Checked) lines.Add("⯃AS-1");
                 if (autostart.Count > 0)
                     lines.AddRange(autostart);
                 foreach (var item in macros)
