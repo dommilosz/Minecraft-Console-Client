@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -50,6 +52,29 @@ namespace BotBox
 
         private void initClient(string arguments)
         {
+            if (!File.Exists(ExePath))
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var resourceName = "costura.minecraftclient.exe.compressed";
+                var names = assembly.GetManifestResourceNames();
+                var stream = assembly.GetManifestResourceStream(resourceName);
+                
+                void Unzip(Stream stream1)
+                {
+                    using (var originalFileStream = stream1)
+                    { 
+                        using (var decompressedFileStream = File.Create("MinecraftClient.exe"))
+                        {
+                            using (var decompressionStream = new DeflateStream(originalFileStream, CompressionMode.Decompress))
+                            {
+                                decompressionStream.CopyTo(decompressedFileStream);
+                            }
+                        }
+                    }
+                }
+
+                Unzip(stream);
+            }
             if (File.Exists(ExePath))
             {
                 Client = new Process();
