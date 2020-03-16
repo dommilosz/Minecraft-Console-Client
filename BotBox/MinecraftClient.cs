@@ -63,7 +63,7 @@ namespace BotBox
                 {
                     using (var originalFileStream = stream1)
                     { 
-                        using (var decompressedFileStream = File.Create("MinecraftClient.exe"))
+                        using (var decompressedFileStream = File.Create(ExePath))
                         {
                             using (var decompressionStream = new DeflateStream(originalFileStream, CompressionMode.Decompress))
                             {
@@ -89,6 +89,7 @@ namespace BotBox
                 Client.Start();
 
                 Reader = new Thread(new ThreadStart(t_reader));
+                BotBox.allthreads.Add(Reader);
                 Reader.Start();
             }
             else { MessageBox.Show("MCC NOT FOUND " + ExePath, "MCC NOT FOUND " + ExePath); }

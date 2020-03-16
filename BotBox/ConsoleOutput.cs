@@ -99,7 +99,7 @@ namespace BotBox
             }
             catch (Exception ex) { MessageBox.Show(ex.ToString(), ex.ToString()); }
         }
-        public void InitClientClick(string username,string password,string serverip,string version,string macro)
+        public void InitClientClick(string username, string password, string serverip, string version, string macro)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace BotBox
                     box_output.Text = "";
                     if (macro != "")
                     {
-                        Macro.GetByName(macro,BotBox.macros).RUN(Client);
+                        Macro.GetByName(macro, BotBox.macros).RUN(Client);
                     }
                 }
             }
@@ -132,6 +132,7 @@ namespace BotBox
         {
             Client = client;
             t_clientread = new Thread(new ThreadStart(t_clientread_loop));
+            BotBox.allthreads.Add(t_clientread);
             t_clientread.Start();
             box_input.Select();
         }
@@ -144,8 +145,8 @@ namespace BotBox
         {
             while (true && !Client.Disconnected && !BotBox.exited)
             {
-                if (Client.OutputBuffer.Count > 0) 
-                printstring(Client.ReadLine());
+                if (Client.OutputBuffer.Count > 0)
+                    printstring(Client.ReadLine());
                 Thread.Sleep(10);
             }
         }
@@ -246,7 +247,7 @@ namespace BotBox
         protected void onClose(object sender, EventArgs e)
         {
             if (t_clientread != null) { t_clientread.Abort(); }
-            if (Client != null) { new Thread(new ThreadStart(Client.Close)).Start(); }
+            if (Client != null) { Thread t = new Thread(new ThreadStart(Client.Close));t.Start(); BotBox.allthreads.Add(t); }
         }
 
         /// <summary>

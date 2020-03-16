@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,6 +12,7 @@ namespace BotBox
     {
         public static int ID = 1;
         public static List<Macro> macros = new List<Macro>();
+        public static List<Thread> allthreads = new List<Thread>();
         public static List<MCCClient> clients = new List<MCCClient>();
         public static bool exited = false;
         public static List<string> lasttxts = new List<string>();
@@ -140,32 +142,8 @@ namespace BotBox
             var tmp = MessageBox.Show("YES - EXIT \nNO - MINIMIZE", "EXIT OR MINIMIZE?", MessageBoxButtons.YesNoCancel);
             if (tmp == DialogResult.Yes)
             {
-                foreach (var item in clients)
-                {
-                    item.Close();
-                }
-                List<string> lines = new List<string>();
-                if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
-                if (darkCheckBox1.Checked) lines.Add("⯃AS-1");
-                if (autostart.Count > 0)
-                    lines.AddRange(autostart);
-                foreach (var item in macros)
-                {
-                    lines.Add(item.name);
-                    string cmdstext = "";
-                    foreach (var cmds in item.commands)
-                    {
-                        cmdstext += cmds + "⯃";
-                    }
-                    cmdstext = cmdstext.Trim('⯃');
-                    lines.Add(cmdstext);
-                }
-                File.WriteAllLines("macros.bbmcc", lines);
-
-                Application.ExitThread();
-                Application.Exit();
-                exited = true;
                 e.Cancel = false;
+                CloseBotBox();
             }
             if (tmp == DialogResult.No)
             {
@@ -174,6 +152,42 @@ namespace BotBox
                 this.WindowState = FormWindowState.Minimized;
                 e.Cancel = true;
             }
+        }
+        public void CloseBotBox()
+        {
+            if (allthreads.Count > 0)
+            {
+                foreach (var item in allthreads)
+                {
+                    if (item.IsAlive) 
+                    item.Abort();
+                }
+            }
+            foreach (var item in clients)
+            {
+                item.Close();
+            }
+            List<string> lines = new List<string>();
+            if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
+            if (darkCheckBox1.Checked) lines.Add("⯃AS-1");
+            if (autostart.Count > 0)
+                lines.AddRange(autostart);
+            foreach (var item in macros)
+            {
+                lines.Add(item.name);
+                string cmdstext = "";
+                foreach (var cmds in item.commands)
+                {
+                    cmdstext += cmds + "⯃";
+                }
+                cmdstext = cmdstext.Trim('⯃');
+                lines.Add(cmdstext);
+            }
+            File.WriteAllLines("macros.bbmcc", lines);
+
+            Application.ExitThread();
+            Application.Exit();
+            exited = true;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -283,6 +297,7 @@ namespace BotBox
         {
             ParameterizedThreadStart pts = new ParameterizedThreadStart(RUNinAsync);
             Thread t = new Thread(pts);
+            BotBox.allthreads.Add(t);
             macros.Add(new MacroThread(t, $"{name} in [{location}]"));
             t.Start(output);
         }
@@ -473,4 +488,6 @@ namespace BotBox
             description = desc;
         }
     }
+
+    
 }
