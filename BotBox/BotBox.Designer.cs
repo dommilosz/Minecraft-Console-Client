@@ -50,10 +50,16 @@ namespace BotBox
             this.rEMOVEMACRoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tESTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.listBox3 = new System.Windows.Forms.ListView();
             this.darkCheckBox1 = new DarkUI.Controls.DarkCheckBox();
             this.darkButton1 = new DarkUI.Controls.DarkButton();
-            this.listBox3 = new System.Windows.Forms.ListBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.darkButton2 = new DarkUI.Controls.DarkButton();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.MCCIniRTB = new System.Windows.Forms.RichTextBox();
+            this.menuStrip3 = new System.Windows.Forms.MenuStrip();
+            this.sAVEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rELOADToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new DarkUI.Controls.DarkMenuStrip();
             this.bOXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dELETEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -67,6 +73,9 @@ namespace BotBox
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.panel3.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.menuStrip3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,6 +83,7 @@ namespace BotBox
             // 
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 24);
             this.tabControl1.Name = "tabControl1";
@@ -241,22 +251,36 @@ namespace BotBox
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.tabPage1.Controls.Add(this.listBox3);
             this.tabPage1.Controls.Add(this.darkCheckBox1);
             this.tabPage1.Controls.Add(this.darkButton1);
-            this.tabPage1.Controls.Add(this.listBox3);
             this.tabPage1.Controls.Add(this.panel3);
             this.tabPage1.ForeColor = System.Drawing.Color.White;
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Size = new System.Drawing.Size(792, 400);
             this.tabPage1.TabIndex = 2;
-            this.tabPage1.Text = "AUTOSTART";
+            this.tabPage1.Text = "SAVED CLIENTS";
+            // 
+            // listBox3
+            // 
+            this.listBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.listBox3.CheckBoxes = true;
+            this.listBox3.Dock = System.Windows.Forms.DockStyle.Left;
+            this.listBox3.ForeColor = System.Drawing.Color.White;
+            this.listBox3.HideSelection = false;
+            this.listBox3.Location = new System.Drawing.Point(0, 0);
+            this.listBox3.MultiSelect = false;
+            this.listBox3.Name = "listBox3";
+            this.listBox3.Size = new System.Drawing.Size(333, 400);
+            this.listBox3.TabIndex = 5;
+            this.listBox3.UseCompatibleStateImageBehavior = false;
+            this.listBox3.View = System.Windows.Forms.View.List;
+            this.listBox3.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.listBox3_ItemCheck);
             // 
             // darkCheckBox1
             // 
             this.darkCheckBox1.AutoSize = true;
-            this.darkCheckBox1.Checked = true;
-            this.darkCheckBox1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.darkCheckBox1.Location = new System.Drawing.Point(340, 199);
             this.darkCheckBox1.Name = "darkCheckBox1";
             this.darkCheckBox1.Size = new System.Drawing.Size(137, 17);
@@ -273,23 +297,73 @@ namespace BotBox
             this.darkButton1.Text = "Remove Selected";
             this.darkButton1.Click += new System.EventHandler(this.darkButton1_Click);
             // 
-            // listBox3
-            // 
-            this.listBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.listBox3.Dock = System.Windows.Forms.DockStyle.Left;
-            this.listBox3.ForeColor = System.Drawing.Color.White;
-            this.listBox3.FormattingEnabled = true;
-            this.listBox3.Location = new System.Drawing.Point(0, 0);
-            this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(333, 400);
-            this.listBox3.TabIndex = 0;
-            // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.darkButton2);
             this.panel3.Location = new System.Drawing.Point(339, 3);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(248, 189);
             this.panel3.TabIndex = 3;
+            // 
+            // darkButton2
+            // 
+            this.darkButton2.Location = new System.Drawing.Point(122, 166);
+            this.darkButton2.Name = "darkButton2";
+            this.darkButton2.Padding = new System.Windows.Forms.Padding(5);
+            this.darkButton2.Size = new System.Drawing.Size(116, 23);
+            this.darkButton2.TabIndex = 5;
+            this.darkButton2.Text = "RUN Selected";
+            this.darkButton2.Click += new System.EventHandler(this.darkButton2_Click);
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.tabPage3.Controls.Add(this.MCCIniRTB);
+            this.tabPage3.Controls.Add(this.menuStrip3);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(792, 400);
+            this.tabPage3.TabIndex = 3;
+            this.tabPage3.Text = "MCC Settings";
+            // 
+            // MCCIniRTB
+            // 
+            this.MCCIniRTB.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.MCCIniRTB.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MCCIniRTB.ForeColor = System.Drawing.Color.White;
+            this.MCCIniRTB.Location = new System.Drawing.Point(0, 24);
+            this.MCCIniRTB.Name = "MCCIniRTB";
+            this.MCCIniRTB.Size = new System.Drawing.Size(792, 376);
+            this.MCCIniRTB.TabIndex = 0;
+            this.MCCIniRTB.Text = "";
+            // 
+            // menuStrip3
+            // 
+            this.menuStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sAVEToolStripMenuItem,
+            this.rELOADToolStripMenuItem});
+            this.menuStrip3.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip3.Name = "menuStrip3";
+            this.menuStrip3.Size = new System.Drawing.Size(792, 24);
+            this.menuStrip3.TabIndex = 1;
+            this.menuStrip3.Text = "menuStrip3";
+            // 
+            // sAVEToolStripMenuItem
+            // 
+            this.sAVEToolStripMenuItem.Enabled = false;
+            this.sAVEToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
+            this.sAVEToolStripMenuItem.Name = "sAVEToolStripMenuItem";
+            this.sAVEToolStripMenuItem.Size = new System.Drawing.Size(45, 20);
+            this.sAVEToolStripMenuItem.Text = "SAVE";
+            this.sAVEToolStripMenuItem.Click += new System.EventHandler(this.sAVEToolStripMenuItem_Click);
+            // 
+            // rELOADToolStripMenuItem
+            // 
+            this.rELOADToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
+            this.rELOADToolStripMenuItem.Name = "rELOADToolStripMenuItem";
+            this.rELOADToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
+            this.rELOADToolStripMenuItem.Text = "RELOAD";
+            this.rELOADToolStripMenuItem.Click += new System.EventHandler(this.rELOADToolStripMenuItem_Click);
             // 
             // menuStrip1
             // 
@@ -364,6 +438,11 @@ namespace BotBox
             this.menuStrip2.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            this.menuStrip3.ResumeLayout(false);
+            this.menuStrip3.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -394,11 +473,17 @@ namespace BotBox
         private ToolStripMenuItem kILLToolStripMenuItem;
         private NotifyIcon notifyIcon1;
         private TabPage tabPage1;
-        private ListBox listBox3;
         private DarkButton darkButton1;
         private Timer timer2;
         private Panel panel3;
         private DarkCheckBox darkCheckBox1;
+        private TabPage tabPage3;
+        private RichTextBox MCCIniRTB;
+        private MenuStrip menuStrip3;
+        private ToolStripMenuItem sAVEToolStripMenuItem;
+        private ToolStripMenuItem rELOADToolStripMenuItem;
+        private DarkButton darkButton2;
+        private ListView listBox3;
     }
 }
 

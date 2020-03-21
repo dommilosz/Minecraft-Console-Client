@@ -221,8 +221,8 @@ namespace BotBox
 
         private void AppendTextBox(RichTextBox box, string text, Color color, FontStyle style)
         {
-            BotBox.lasttxts.Add(text);
-            if (BotBox.lasttxts.Count > 8) BotBox.lasttxts.RemoveAt(0);
+            BotBox.log.Add(text);
+            AwaitingEngine.SendString(text);
             if (InvokeRequired)
             {
                 this.Invoke(new Action<RichTextBox, string, Color, FontStyle>(AppendTextBox), new object[] { box, text, color, style });
@@ -406,7 +406,7 @@ namespace BotBox
             if (version == "") version = "auto";
             if (username != "" && serverip != "")
             {
-                ((BotBox)Parent.FindForm()).AddAutostart($"{username}⯃{password}⯃{serverip}⯃{version}⯃{comboBox1.Text}");
+                ((BotBox)Parent.FindForm()).AddAutostart($"{username}⯃{password}⯃{serverip}⯃{version}⯃{comboBox1.Text}⯃OFF");
             }
         }
     }

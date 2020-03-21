@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -15,7 +16,7 @@ namespace BotBox
         public static List<Thread> allthreads = new List<Thread>();
         public static List<MCCClient> clients = new List<MCCClient>();
         public static bool exited = false;
-        public static List<string> lasttxts = new List<string>();
+        public static List<string> log = new List<string>();
         public static List<string> autostart = new List<string>();
         public static FormWindowState state = FormWindowState.Normal;
         public BotBox()
@@ -24,42 +25,102 @@ namespace BotBox
             var consoleOutput1 = new ConsoleOutput();
             consoleOutput1.AddBox();
             panel3.Controls.Add(consoleOutput1);
+            LoadFromFIle();
+            LoadMCCIni();
+            timer2.Start();
+            
+        }
+        public void LoadFromFIle()
+        {
             if (File.Exists("macros.bbmcc"))
             {
-                var lines = File.ReadAllLines("macros.bbmcc").ToList();
-                var lines2 = File.ReadAllLines("macros.bbmcc").ToList();
-                var startlines = new List<string>();
-                if (lines[0].Contains("⯃AS-0"))
+                List<string> lines = new List<string>();
+                List<string> settingslines = new List<string>();
+                List<string> autostartlines = new List<string>();
+                List<string> macrolines = new List<string>();
+                lines = File.ReadAllLines("macros.bbmcc").ToList();
+                int step = 0;
+                foreach (var item in lines)
                 {
-                    darkCheckBox1.Checked = false;
-                    lines2.RemoveAt(0);
-                }
-                if (lines[0].Contains("⯃AS-1"))
-                {
-                    lines2.RemoveAt(0);
-                }
-                for (int i = 0; i < lines.Count; i++)
-                {
-                    if (lines[i].Contains("⯃START⯃"))
+                    if (item == ""||item.Contains("⯀⯀")) step = 0;
+                    if (step == 1)
                     {
-                        AddAutostart((lines[i].Replace("⯃START⯃", "")));
-                        lines2.RemoveAt(0);
+                        settingslines.Add(item);
                     }
-                }
-                for (int i = 0; i < lines2.Count; i += 2)
-                {
-                    if (!lines2[i].Contains("⯃START⯃"))
+                    if (step == 2)
                     {
-                        var cmds = lines2[i + 1].Split('⯃');
-                        listBox1.Items.Add(lines2[i]);
-                        macros.Add(new Macro(lines2[i], cmds.ToList()));
+                        autostartlines.Add(item);
+                    }
+                    if (step == 3)
+                    {
+                        macrolines.Add(item);
+                    }
+                    if (item=="⯀⯀SETTINGS⯀⯀")
+                    {
+                        step = 1;
+                    }
+                    if (item == "⯀⯀AUTOSTART⯀⯀")
+                    {
+                        step = 2;
+                    }
+                    if (item == "⯀⯀MACROS⯀⯀")
+                    {
+                        step = 3;
                     }
                 }
 
+                foreach (var item in settingslines)
+                {
+                    if (item.Contains("⯃AUTOSTART=1"))
+                    {
+                        darkCheckBox1.Checked = true;
+                    }
+                }
+                foreach (var item in autostartlines)
+                {
+                    AddAutostart(item);
+                }
+                foreach (var item in macrolines)
+                {
+                    var items = item.Split('⯃');
+                    listBox1.Items.Add(items[0]);
+                    var cmds = items.ToList();
+                    cmds.RemoveAt(0);
+                    macros.Add(new Macro(items[0], cmds));
+                }
             }
-            timer2.Start();
         }
-
+        public void SaveToFIle()
+        {
+            List<string> lines = new List<string>();
+            lines.Add("⯀⯀BOTBOX-SETTINGS-FILE⯀⯀");
+            lines.Add("");
+            lines.Add("⯀⯀SETTINGS⯀⯀");
+            int autostartenabled = 0;
+            if (darkCheckBox1.Checked) autostartenabled = 1;
+            lines.Add($"⯃AUTOSTART={autostartenabled}");
+            lines.Add("");
+            lines.Add("⯀⯀AUTOSTART⯀⯀");
+            foreach (var item in autostart)
+            {
+                lines.Add(item);
+            }
+            lines.Add("");
+            lines.Add("⯀⯀MACROS⯀⯀");
+            foreach (var item in macros)
+            {
+                string cmdstext = "";
+                foreach (var cmds in item.commands)
+                {
+                    cmdstext += cmds + "⯃";
+                }
+                cmdstext = cmdstext.Trim('⯃');
+                lines.Add(item.name + "⯃" + cmdstext);
+            }
+            lines.Add("");
+            lines.Add("⯀⯀END⯀⯀");
+            File.WriteAllLines("macros.bbmcc", lines);
+        }
         private void bOXToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var tp = new TabPage($"BOT {ID}");
@@ -159,31 +220,15 @@ namespace BotBox
             {
                 foreach (var item in allthreads)
                 {
-                    if (item.IsAlive) 
-                    item.Abort();
+                    if (item.IsAlive)
+                        item.Abort();
                 }
             }
             foreach (var item in clients)
             {
                 item.Close();
             }
-            List<string> lines = new List<string>();
-            if (!darkCheckBox1.Checked) lines.Add("⯃AS-0");
-            if (darkCheckBox1.Checked) lines.Add("⯃AS-1");
-            if (autostart.Count > 0)
-                lines.AddRange(autostart);
-            foreach (var item in macros)
-            {
-                lines.Add(item.name);
-                string cmdstext = "";
-                foreach (var cmds in item.commands)
-                {
-                    cmdstext += cmds + "⯃";
-                }
-                cmdstext = cmdstext.Trim('⯃');
-                lines.Add(cmdstext);
-            }
-            File.WriteAllLines("macros.bbmcc", lines);
+            SaveToFIle();
 
             Application.ExitThread();
             Application.Exit();
@@ -231,18 +276,31 @@ namespace BotBox
         }
         public void AddAutostart(string item)
         {
-            listBox3.Items.Add(item.Replace("⯃", " | "));
-            autostart.Add("⯃START⯃" + item);
+            string name = item;
+            name = name.Replace("⯃ON", "");
+            name = name.Replace("⯃OFF", "");
+            name = name.Replace("⯃", " | ");
+            ListViewItem lvitem = new ListViewItem(name);
+            if (item.Split('⯃')[5] == "ON") lvitem.Checked = true;
+            listBox3.Items.Add(lvitem);
+            autostart.Add(item);
         }
         public void DoAutostart()
         {
             foreach (var item in autostart)
             {
-                var item2 = item.Replace("⯃START⯃", "");
+                DoAutostart(item);
+            }
+        }
+        public void DoAutostart(string item,bool one=false)
+        {
+            var item2 = item;
+            var items = item2.Split('⯃');
+            if (items[5] == "ON"||one)
+            {
                 var tp = new TabPage($"BOT {ID}");
                 ID++;
                 var cc = new ConsoleOutput();
-                var items = item2.Split('⯃');
                 tp.Controls.Add(cc);
                 tabControl1.TabPages.Add(tp);
                 cc.InitClientClick(items[0], items[1], items[2], items[3], items[4]);
@@ -252,8 +310,8 @@ namespace BotBox
 
         private void darkButton1_Click(object sender, EventArgs e)
         {
-            if (listBox3.SelectedIndex < 0) return;
-            int i = listBox3.SelectedIndex;
+            if (listBox3.SelectedItems.Count <= 0) return;
+            int i = listBox3.SelectedItems[0].Index;
             listBox3.Items.RemoveAt(i);
             autostart.RemoveAt(i);
         }
@@ -262,6 +320,51 @@ namespace BotBox
         {
             if (autostart.Count > 0 && darkCheckBox1.Checked) DoAutostart();
             timer2.Enabled = false;
+        }
+
+        private void sAVEToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (File.Exists("MinecraftClient.ini"))
+                File.WriteAllText("MinecraftClient.ini", MCCIniRTB.Text);
+        }
+
+        private void rELOADToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadMCCIni();
+        }
+        public void LoadMCCIni()
+        {
+            if (File.Exists("MinecraftClient.ini"))
+            {
+                MCCIniRTB.Text = File.ReadAllText("MinecraftClient.ini");
+                sAVEToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                MCCIniRTB.Text = "MinecraftClient.ini Not Found\nRun BOT to generate it";
+                sAVEToolStripMenuItem.Enabled = false;
+            }
+        }
+
+        private void darkButton2_Click(object sender, EventArgs e)
+        {
+            if (listBox3.SelectedItems.Count <= 0) return;
+            int i = listBox3.SelectedItems[0].Index;
+            var item = autostart[i];
+            DoAutostart(item,true);
+        }
+
+        private void listBox3_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            var val = e.NewValue;
+            string newstring = "⯃OFF";
+            if ( val == CheckState.Checked)
+            {
+                newstring = "⯃ON";
+            }
+            int i = e.Index;
+            string tmp = autostart[i].Replace("⯃OFF", newstring).Replace("⯃ON", newstring);
+            autostart[i] = tmp;
         }
     }
 
@@ -345,18 +448,12 @@ namespace BotBox
                                 case "@goto": { i = Region.RecoRegions(regions, parts[1]); break; }
                                 case "@await":
                                     {
-                                        while (true && !BotBox.exited)
+                                        string txt = item.Remove(0, 6);
+                                        txt = txt.Trim();
+                                        AwaitingEngine engine = new AwaitingEngine(txt);
+                                        while (true && !BotBox.exited && !engine.IsSucces)
                                         {
                                             if (testmode) break;
-                                            string txt = item.Remove(0, 6);
-                                            txt = txt.Trim();
-                                            var lasttxts2 = BotBox.lasttxts.ToArray();
-                                            bool b = false;
-                                            foreach (var item2 in lasttxts2)
-                                            {
-                                                if (item2.Contains(txt)) b = true;
-                                            }
-                                            if (b) break;
                                             Thread.Sleep(100);
                                         }
                                         break;
@@ -488,6 +585,26 @@ namespace BotBox
             description = desc;
         }
     }
+    public class AwaitingEngine
+    {
+        public bool IsSucces = false;
+        public string stringToawait;
+        public static List<AwaitingEngine> engines = new List<AwaitingEngine>();
+        public AwaitingEngine(string stringToawait)
+        {
+            this.stringToawait = stringToawait;
+            engines.Add(this);
+        }
+        public static void SendString(string str)
+        {
+            var engcopy = engines.ToArray().ToList();
+            if (engines.Count > 0)
+                foreach (var item in engcopy)
+                {
+                    if (str.Contains(item.stringToawait)) { item.IsSucces = true; }
+                }
+        }
+    }
 
-    
+
 }
