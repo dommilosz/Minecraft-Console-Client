@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ScintillaNET;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -19,6 +19,8 @@ namespace BotBox
         public static List<string> log = new List<string>();
         public static List<string> autostart = new List<string>();
         public static FormWindowState state = FormWindowState.Normal;
+        bool MCCINILoaded = false;
+        int MCCINILine = 0;
         public BotBox()
         {
             InitializeComponent();
@@ -26,9 +28,18 @@ namespace BotBox
             consoleOutput1.AddBox();
             panel3.Controls.Add(consoleOutput1);
             LoadFromFIle();
-            LoadMCCIni();
             timer2.Start();
+            timer1.Start();
+            MCCIniRTB.Styles[Style.Default].BackColor = Color.FromArgb(60, 63, 65);
+            MCCIniRTB.Styles[Style.Default].ForeColor = Color.White;
+            MCCIniRTB.Styles[Style.Default].Font = "Consolas";
+            MCCIniRTB.StyleClearAll();
+            MCCIniRTB.SetSelectionBackColor(true, Color.CornflowerBlue);
+            MCCIniRTB.Margins.Capacity = 0;
             
+            KeyWordToColorise.InitKeywords();
+            LoadMCCIni();
+            //MCCIniRTB.Styles[Style.Default].Font;
         }
         public void LoadFromFIle()
         {
@@ -42,7 +53,7 @@ namespace BotBox
                 int step = 0;
                 foreach (var item in lines)
                 {
-                    if (item == ""||item.Contains("⯀⯀")) step = 0;
+                    if (item == "" || item.Contains("⯀⯀")) step = 0;
                     if (step == 1)
                     {
                         settingslines.Add(item);
@@ -55,7 +66,7 @@ namespace BotBox
                     {
                         macrolines.Add(item);
                     }
-                    if (item=="⯀⯀SETTINGS⯀⯀")
+                    if (item == "⯀⯀SETTINGS⯀⯀")
                     {
                         step = 1;
                     }
@@ -243,13 +254,28 @@ namespace BotBox
                 if (!Macro.macros[i].isRunning) Macro.macros.RemoveAt(i);
             }
             int countp = listBox2.Items.Count;
-            if (countp == Macro.macros.Count) return;
-            listBox2.Items.Clear();
-            if (Macro.macros.Count > 0)
-                foreach (var item in Macro.macros)
+            if (countp != Macro.macros.Count)
+            {
+                listBox2.Items.Clear();
+                if (Macro.macros.Count > 0)
+                    foreach (var item in Macro.macros)
+                    {
+                        listBox2.Items.Add(item.description);
+                    }
+            }
+            return;
+            if (!MCCINILoaded)
+            {
+                for (int i = 0; i < 10; i++)
                 {
-                    listBox2.Items.Add(item.description);
+                    if (i >= MCCIniRTB.Lines.Count)
+                    {
+                        MCCINILoaded = true;
+                    }
+                    else { MCCINIColorise(i + MCCINILine); }
                 }
+                MCCINILine += 10;
+            }
         }
 
         private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -292,11 +318,11 @@ namespace BotBox
                 DoAutostart(item);
             }
         }
-        public void DoAutostart(string item,bool one=false)
+        public void DoAutostart(string item, bool one = false)
         {
             var item2 = item;
             var items = item2.Split('⯃');
-            if (items[5] == "ON"||one)
+            if (items[5] == "ON" || one)
             {
                 var tp = new TabPage($"BOT {ID}");
                 ID++;
@@ -330,7 +356,12 @@ namespace BotBox
 
         private void rELOADToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            ActivateMCCSettings();   
+        }
+        void ActivateMCCSettings()
+        {
             LoadMCCIni();
+            MCCINIColorise();
         }
         public void LoadMCCIni()
         {
@@ -345,26 +376,178 @@ namespace BotBox
                 sAVEToolStripMenuItem.Enabled = false;
             }
         }
+        public void MCCINIColorise()
+        {
+            for (int i = 0; i < MCCIniRTB.Lines.Count; i++)
+            {
+                MCCINIColorise(i);
+            }
+            KeyWordToColorise.Colorise(MCCIniRTB);
+        }
+        public void MCCINIColorise(int line)
+        {
+            
+            var box = MCCIniRTB;
+            if (line >= box.Lines.Count) return;
+            var lines = box.Lines.ToList();
+            if (box.Text.Length <= 0) return;
 
+            box.Styles[0].ForeColor = Color.Red;
+            box.Styles[1].ForeColor = Color.Aqua;
+            box.Styles[2].ForeColor = Color.Lime;
+            box.Styles[3].ForeColor = Color.Yellow;
+            box.Styles[4].ForeColor = Color.SteelBlue;
+            box.Styles[5].ForeColor = Color.Violet;
+            
+            int lastlinestart = 0;
+            int nextlineend = -1;
+            int nextequals = -1;
+            int lasthash = -1;
+            int lastequals = -1;
+            int wordi = 0;
+            box.Lexer = Lexer.Null;
+            for (int i = lines[line].Position; i < lines[line].EndPosition; i++)
+            {
+                int selectedstyle = 32;
+
+                nextlineend = box.Text.IndexOf('\n', i, box.Text.Length - i);
+                nextequals = box.Text.IndexOf('=', i, box.Text.Length - i);
+                var item = box.Text[i];
+
+                bool equals = false;
+                bool comment = false;
+                bool beforeequals = false;
+                bool afterequals = false;
+
+                if (item == '=')
+                {
+                    equals = true;
+                    lastequals = i;
+                }
+                if (item == ' ')
+                {
+                    wordi++;
+                }
+                if (item == '\n')
+                {
+                    lastlinestart = i + 1;
+                }
+                if (item == '#')
+                {
+                    lasthash = i;
+                }
+                if (lasthash >= lastlinestart)
+                {
+                    comment = true;
+                }
+                if (lastlinestart < lastequals)
+                {
+                    afterequals = true;
+                }
+                if (lastlinestart < nextequals)
+                {
+                    beforeequals = true;
+                }
+
+
+
+                if (beforeequals) { selectedstyle = 1; }
+                if (afterequals) { selectedstyle = 3;}
+                if (equals) { selectedstyle = 0; }
+                if (comment) { selectedstyle = 2; }
+                box.StartStyling(i);
+                box.SetStyling(1, selectedstyle);
+            }
+            
+        }
+        public class KeyWordToColorise
+        {
+            public static List<KeyWordToColorise> keywords = new List<KeyWordToColorise>();
+            public string keyword;
+            public int style;
+            public KeyWordToColorise(string word,int s)
+            {
+                keyword = word;
+                style = s;
+                keywords.Add(this);
+            }
+            public static void Colorise(Scintilla box)
+            {
+                foreach (var item in keywords)
+                {
+                    for (int i = 0; i < box.Text.Length; i++)
+                    {
+                        if (i + item.keyword.Length >= box.Text.Length) break;
+                        i = box.Text.IndexOf(item.keyword, i, box.Text.Length-i);
+                        if (i < 0) break;
+                        if (i >= 0)
+                        {
+                            if (box.GetStyleAt(i) == 3)
+                            {
+                                box.StartStyling(i);
+                                box.SetStyling(item.keyword.Length, item.style);
+                            }
+                        }
+                    }
+                    
+                }
+            }
+            public static void InitKeywords()
+            {
+                string keys1 = "true false";
+                string keys2 = "normal medium hard easy left right auto fast disk memory none slash backslash mcc vanilla login";
+                foreach (var item in keys1.Split(' '))
+                {
+                    keywords.Add(new KeyWordToColorise(item, 4));
+                }
+                foreach (var item in keys2.Split(' '))
+                {
+                    keywords.Add(new KeyWordToColorise(item, 5));
+                }
+            }
+        }
         private void darkButton2_Click(object sender, EventArgs e)
         {
             if (listBox3.SelectedItems.Count <= 0) return;
             int i = listBox3.SelectedItems[0].Index;
             var item = autostart[i];
-            DoAutostart(item,true);
+            DoAutostart(item, true);
         }
 
         private void listBox3_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             var val = e.NewValue;
             string newstring = "⯃OFF";
-            if ( val == CheckState.Checked)
+            if (val == CheckState.Checked)
             {
                 newstring = "⯃ON";
             }
             int i = e.Index;
             string tmp = autostart[i].Replace("⯃OFF", newstring).Replace("⯃ON", newstring);
             autostart[i] = tmp;
+        }
+
+        private void MCCIniRTB_TextChanged(object sender, EventArgs e)
+        {
+            MCCINIColorise(MCCIniRTB.CurrentLine);
+            KeyWordToColorise.Colorise(MCCIniRTB);
+        }
+
+        private void tabControl1_TabIndexChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.TabPages[tabControl1.SelectedIndex].Text == "MCC Settings" && !MCCINILoaded)
+            {
+                if (!MCCINILoaded)
+                {
+                    ActivateMCCSettings();
+                }
+                MCCINILoaded = true;
+            }
         }
     }
 

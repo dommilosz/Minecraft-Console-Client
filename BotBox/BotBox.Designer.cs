@@ -1,4 +1,6 @@
 ﻿using DarkUI.Controls;
+using ScintillaNET;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace BotBox
@@ -56,7 +58,7 @@ namespace BotBox
             this.panel3 = new System.Windows.Forms.Panel();
             this.darkButton2 = new DarkUI.Controls.DarkButton();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.MCCIniRTB = new System.Windows.Forms.RichTextBox();
+            this.MCCIniRTB = new ScintillaNET.Scintilla();
             this.menuStrip3 = new System.Windows.Forms.MenuStrip();
             this.sAVEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rELOADToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -90,6 +92,8 @@ namespace BotBox
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(800, 426);
             this.tabControl1.TabIndex = 1;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
+            this.tabControl1.TabIndexChanged += new System.EventHandler(this.tabControl1_TabIndexChanged);
             // 
             // tabPage2
             // 
@@ -328,14 +332,16 @@ namespace BotBox
             // 
             // MCCIniRTB
             // 
-            this.MCCIniRTB.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.MCCIniRTB.AdditionalCaretForeColor = System.Drawing.Color.Blue;
+            this.MCCIniRTB.CaretForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(45)))));
             this.MCCIniRTB.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MCCIniRTB.ForeColor = System.Drawing.Color.White;
             this.MCCIniRTB.Location = new System.Drawing.Point(0, 24);
+            this.MCCIniRTB.Margins.Capacity = 0;
             this.MCCIniRTB.Name = "MCCIniRTB";
             this.MCCIniRTB.Size = new System.Drawing.Size(792, 376);
-            this.MCCIniRTB.TabIndex = 0;
-            this.MCCIniRTB.Text = "";
+            this.MCCIniRTB.TabIndex = 2;
+            this.MCCIniRTB.Text = "scintilla1";
+            this.MCCIniRTB.TextChanged += new System.EventHandler(this.MCCIniRTB_TextChanged);
             // 
             // menuStrip3
             // 
@@ -478,12 +484,12 @@ namespace BotBox
         private Panel panel3;
         private DarkCheckBox darkCheckBox1;
         private TabPage tabPage3;
-        private RichTextBox MCCIniRTB;
         private MenuStrip menuStrip3;
         private ToolStripMenuItem sAVEToolStripMenuItem;
         private ToolStripMenuItem rELOADToolStripMenuItem;
         private DarkButton darkButton2;
         private ListView listBox3;
+        private ScintillaNET.Scintilla MCCIniRTB;
     }
 }
 

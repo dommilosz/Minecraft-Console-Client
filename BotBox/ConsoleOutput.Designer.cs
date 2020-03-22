@@ -1,4 +1,5 @@
 ﻿using DarkUI.Controls;
+using ScintillaNET;
 using System.Windows.Forms;
 
 namespace BotBox
@@ -43,7 +44,7 @@ namespace BotBox
             this.box_ip = new DarkUI.Controls.DarkTextBox();
             this.box_password = new DarkUI.Controls.DarkTextBox();
             this.box_Login = new DarkUI.Controls.DarkTextBox();
-            this.box_output = new System.Windows.Forms.RichTextBox();
+            this.box_output = new Scintilla();
             this.box_input = new DarkUI.Controls.DarkTextBox();
             this.button2 = new DarkUI.Controls.DarkButton();
             this.darkButton1 = new DarkUI.Controls.DarkButton();
@@ -250,7 +251,7 @@ namespace BotBox
         #endregion
         public DarkComboBox comboBox1;
         public Panel panel1;
-        public RichTextBox box_output;
+        public Scintilla box_output;
         public DarkButton button1;
         public DarkLabel label4;
         public DarkTextBox textBox4;
