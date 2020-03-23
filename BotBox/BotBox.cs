@@ -21,6 +21,8 @@ namespace BotBox
         public static FormWindowState state = FormWindowState.Normal;
         bool MCCINILoaded = false;
         int MCCINILine = 0;
+        public static int stamp;
+
         public BotBox()
         {
             InitializeComponent();
@@ -34,9 +36,10 @@ namespace BotBox
             MCCIniRTB.Styles[Style.Default].ForeColor = Color.White;
             MCCIniRTB.Styles[Style.Default].Font = "Consolas";
             MCCIniRTB.StyleClearAll();
+            MCCIniRTB.CaretForeColor = Color.White;
             MCCIniRTB.SetSelectionBackColor(true, Color.CornflowerBlue);
             MCCIniRTB.Margins.Capacity = 0;
-            
+            stamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             KeyWordToColorise.InitKeywords();
             LoadMCCIni();
             //MCCIniRTB.Styles[Style.Default].Font;
@@ -263,19 +266,6 @@ namespace BotBox
                         listBox2.Items.Add(item.description);
                     }
             }
-            return;
-            if (!MCCINILoaded)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    if (i >= MCCIniRTB.Lines.Count)
-                    {
-                        MCCINILoaded = true;
-                    }
-                    else { MCCINIColorise(i + MCCINILine); }
-                }
-                MCCINILine += 10;
-            }
         }
 
         private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -356,7 +346,7 @@ namespace BotBox
 
         private void rELOADToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ActivateMCCSettings();   
+            ActivateMCCSettings();
         }
         void ActivateMCCSettings()
         {
@@ -386,30 +376,33 @@ namespace BotBox
         }
         public void MCCINIColorise(int line)
         {
-            
+
             var box = MCCIniRTB;
             if (line >= box.Lines.Count) return;
             var lines = box.Lines.ToList();
             if (box.Text.Length <= 0) return;
-
             box.Styles[0].ForeColor = Color.Red;
             box.Styles[1].ForeColor = Color.Aqua;
             box.Styles[2].ForeColor = Color.Lime;
             box.Styles[3].ForeColor = Color.Yellow;
             box.Styles[4].ForeColor = Color.SteelBlue;
             box.Styles[5].ForeColor = Color.Violet;
-            
+            box.Styles[6].ForeColor = Color.Goldenrod;
+            box.Styles[7].ForeColor = Color.LightGreen;
+
             int lastlinestart = 0;
             int nextlineend = -1;
             int nextequals = -1;
             int lasthash = -1;
             int lastequals = -1;
             int wordi = 0;
+            bool invar = false;
+            bool invarnext = false;
             box.Lexer = Lexer.Null;
             for (int i = lines[line].Position; i < lines[line].EndPosition; i++)
             {
                 int selectedstyle = 32;
-
+                string worditem = box.Text.Split(' ')[wordi];
                 nextlineend = box.Text.IndexOf('\n', i, box.Text.Length - i);
                 nextequals = box.Text.IndexOf('=', i, box.Text.Length - i);
                 var item = box.Text[i];
@@ -418,6 +411,8 @@ namespace BotBox
                 bool comment = false;
                 bool beforeequals = false;
                 bool afterequals = false;
+                bool number = false;
+                if (!invarnext) invar = false;
 
                 if (item == '=')
                 {
@@ -431,10 +426,24 @@ namespace BotBox
                 if (item == '\n')
                 {
                     lastlinestart = i + 1;
+                    invar = false;
                 }
                 if (item == '#')
                 {
                     lasthash = i;
+                }
+                if (item == '%')
+                {
+                    if (invar) invarnext = false;
+                    if (!invar) { invar = true; invarnext = true; }
+                }
+                if ("0123456789".Contains(item))
+                {
+                    var res = IsNumber(box.Text, i);
+                    if (res == 1 || res == 2)
+                    {
+                        number = true;
+                    }
                 }
                 if (lasthash >= lastlinestart)
                 {
@@ -452,20 +461,60 @@ namespace BotBox
 
 
                 if (beforeequals) { selectedstyle = 1; }
-                if (afterequals) { selectedstyle = 3;}
+                if (afterequals) { selectedstyle = 3; }
+                if (invar) { selectedstyle = 6; }
+                if (number) { selectedstyle = 7; }
                 if (equals) { selectedstyle = 0; }
                 if (comment) { selectedstyle = 2; }
                 box.StartStyling(i);
                 box.SetStyling(1, selectedstyle);
             }
-            
+
+        }
+        public int IsNumber(string txt, int i)
+        {
+            char item = txt[i];
+            const string allowed = ":.,= \r\n \n";
+            const string numbers = "0123456789";
+            if (allowed.Contains(item)) return 1;
+            if (numbers.Contains(item))
+            {
+                int res1 = 2;
+                int res2 = 2;
+                if (i < txt.Length)
+                    res1 = IsNumber(txt, i + 1,1);
+                if (i >= 0)
+                    res2 = IsNumber(txt, i - 1,-1);
+                if ((res1 == 1 || res1 == 2) && (res2 == 1 || res2 == 2)) return 2;
+            }
+            return 0;
+        }
+        public int IsNumber(string txt, int i, int ichange)
+        {
+            char item = txt[i];
+            const string allowed = ":.,= \r\n \n";
+            const string numbers = "0123456789";
+            if (allowed.Contains(item)) return 1;
+            if (numbers.Contains(item))
+            {
+                int res1 = 2;
+                int res2 = 2;
+                if (ichange > 0)
+                    if (i < txt.Length)
+                        res1 = IsNumber(txt, i + ichange,ichange);
+                if (ichange < 0)
+                    if (i >= 0)
+                        res2 = IsNumber(txt, i - 1, ichange);
+                if ((res1 == 1 || res1 == 2) && (res2 == 1 || res2 == 2)) return 2;
+            }
+            return 0;
         }
         public class KeyWordToColorise
         {
             public static List<KeyWordToColorise> keywords = new List<KeyWordToColorise>();
             public string keyword;
             public int style;
-            public KeyWordToColorise(string word,int s)
+            public KeyWordToColorise(string word, int s)
             {
                 keyword = word;
                 style = s;
@@ -478,7 +527,7 @@ namespace BotBox
                     for (int i = 0; i < box.Text.Length; i++)
                     {
                         if (i + item.keyword.Length >= box.Text.Length) break;
-                        i = box.Text.IndexOf(item.keyword, i, box.Text.Length-i);
+                        i = box.Text.IndexOf(item.keyword, i, box.Text.Length - i);
                         if (i < 0) break;
                         if (i >= 0)
                         {
@@ -489,18 +538,22 @@ namespace BotBox
                             }
                         }
                     }
-                    
+
                 }
             }
             public static void InitKeywords()
             {
                 string keys1 = "true false";
-                string keys2 = "normal medium hard easy left right auto fast disk memory none slash backslash mcc vanilla login";
-                foreach (var item in keys1.Split(' '))
+                string keys2 = "normal medium hard easy left right auto fast disk memory none slash backslash mcc vanilla login enabled disabled HTTP SOCKS4 SOCKS4a SOCKS5 tiny short far peaceful easy normal difficult";
+                string[] keys1arr = keys1.Split(' ');
+                string[] keys2arr = keys2.Split(' ');
+                Array.Sort(keys1arr, (x, y) => y.Length.CompareTo(x.Length));
+                Array.Sort(keys2arr, (x, y) => y.Length.CompareTo(x.Length));
+                foreach (var item in keys1arr)
                 {
                     keywords.Add(new KeyWordToColorise(item, 4));
                 }
-                foreach (var item in keys2.Split(' '))
+                foreach (var item in keys2arr)
                 {
                     keywords.Add(new KeyWordToColorise(item, 5));
                 }
@@ -535,7 +588,7 @@ namespace BotBox
 
         private void tabControl1_TabIndexChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -633,11 +686,13 @@ namespace BotBox
                                     {
                                         string txt = item.Remove(0, 6);
                                         txt = txt.Trim();
-                                        AwaitingEngine engine = new AwaitingEngine(txt);
-                                        while (true && !BotBox.exited && !engine.IsSucces)
+                                        if (!testmode)
                                         {
-                                            if (testmode) break;
-                                            Thread.Sleep(100);
+                                            AwaitingEngine engine = new AwaitingEngine(txt, outputinclass.MCCClient.ID);
+                                            while (true && !BotBox.exited && !engine.IsSucces)
+                                            {
+                                                Thread.Sleep(100);
+                                            }
                                         }
                                         break;
                                     }
@@ -772,19 +827,21 @@ namespace BotBox
     {
         public bool IsSucces = false;
         public string stringToawait;
+        public int ID;
         public static List<AwaitingEngine> engines = new List<AwaitingEngine>();
-        public AwaitingEngine(string stringToawait)
+        public AwaitingEngine(string stringToawait,int ID)
         {
+            this.ID = ID;
             this.stringToawait = stringToawait;
             engines.Add(this);
         }
-        public static void SendString(string str)
+        public static void SendString(string str,int ID)
         {
             var engcopy = engines.ToArray().ToList();
             if (engines.Count > 0)
                 foreach (var item in engcopy)
                 {
-                    if (str.Contains(item.stringToawait)) { item.IsSucces = true; }
+                    if (str.Contains(item.stringToawait) && item.ID == ID) { item.IsSucces = true; }
                 }
         }
     }

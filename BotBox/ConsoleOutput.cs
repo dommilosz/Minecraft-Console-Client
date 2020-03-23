@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -33,15 +34,6 @@ namespace BotBox
         {
             InitializeComponent();
             var box = box_output;
-            box_output.Margins.Capacity = 0;
-            stylesHandler = new ScintillaStylesHandler(box_output);
-            box_output.Styles[Style.Default].BackColor = Color.FromArgb(60, 63, 65);
-            box_output.Styles[Style.Default].ForeColor = Color.White;
-            box_output.StyleClearAll();
-            box_output.SetSelectionBackColor(true, Color.CornflowerBlue);
-            box_output.Margins.Capacity = 0;
-            box_output.WrapMode = WrapMode.Word;
-
         }
         public void AddBox()
         {
@@ -55,12 +47,8 @@ namespace BotBox
         /// <summary>
         /// Define some element properties and init Aero Glass if using Vista or newer
         /// </summary>
-        public ScintillaStylesHandler stylesHandler;
         private void Form1_Load(object sender, EventArgs e)
         {
-            box_output.Styles[Style.Default].Font = "Consolas";
-            box_output.StyleClearAll();
-            box_output.BackColor = Color.White;
 
             if (Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor == 1)
             {
@@ -230,94 +218,29 @@ namespace BotBox
         /// <param name="color">Color of the text</param>
         /// <param name="style">Font style of the text</param>
 
-        private void AppendTextBox(ScintillaNET.Scintilla box, string text, Color color, FontStyle style)
+        private void AppendTextBox(RichTextBox box, string text, Color color, FontStyle style)
         {
             BotBox.log.Add(text);
-            AwaitingEngine.SendString(text);
+            AwaitingEngine.SendString(text,Convert.ToInt32(box.Parent.Parent.Text.Remove(0,4)));
             if (InvokeRequired)
             {
-                this.Invoke(new Action<ScintillaNET.Scintilla, string, Color, FontStyle>(AppendTextBox), new object[] { box, text, color, style });
+                this.Invoke(new Action<RichTextBox, string, Color, FontStyle>(AppendTextBox), new object[] { box, text, color, style });
             }
             else
             {
-                box.ReadOnly = false;
-                int ibefore = box.Text.Length;
-                if (ibefore < 0) ibefore = 0;
-                box.Text = box.Text + text;
-                int iafter = box.Text.Length - 1;
+                if (box.Text.Length > 10000) box.Text = box.Text.Remove(0, 500);
 
-                box.SelectionStart = ibefore;
-                box.SelectionEnd = iafter;
-                stylesHandler.AddStyle(color, box.Selections[0]);
-                stylesHandler.AppendStyles();
-                box.SetEmptySelection(box.TextLength-1);
-                box.ScrollCaret();
-                box.ReadOnly = true;
-                //box.SetSelectionBackColor(true, Color.Black);
+                box.SelectionStart = box.TextLength;
+                box.SelectionLength = 0;
+                box.SelectionColor = color;
+                box.SelectionFont = new Font(box.Font, style);
+                box.AppendText(text);
+                box.SelectionColor = box.ForeColor;
+                box.SelectionStart = box.Text.Length;
+                box.ScrollToCaret();
             }
         }
-        public class ScintillaStylesHandler
-        {
-            public class SelectionsTextStyle
-            {
-                public Color color;
-                public int selectionlenght;
-                public int selectionstart;
-                public int selectionend;
-                public SelectionsTextStyle(Color color, Selection selection)
-                {
-                    this.selectionstart = selection.Start;
-                    this.selectionend = selection.End;
-                    this.color = color;
-                    this.selectionlenght = selection.End - selection.Start + 1;
-                }
-            }
-            public List<SelectionsTextStyle> styles = new List<SelectionsTextStyle>();
-            public Scintilla box;
-            public ScintillaStylesHandler(Scintilla box)
-            {
-                this.box = box;
-            }
-            public void AddStyle(Color style,Selection sel)
-            {
-                if (styles == null)
-                {
-                    styles = new List<SelectionsTextStyle>();
-                }
-                styles.Add(new SelectionsTextStyle( style,sel));
-            }
-            public void AppendStyles()
-            {
-                if (styles == null||styles.Count<1) return;
-                int styleindex = 0;
-                foreach (var item in styles)
-                {
-                    int stylefound = -1;
-                    for (int i = 0; i < box.Styles.Count; i++)
-                    {
-                        if (box.Styles[i].ForeColor == item.color)
-                        {
-                            stylefound = i;
-                            break;
-                        }
-                    }
-                    if (styleindex > 31) styleindex = 40;
-                    box.StartStyling(item.selectionstart);
-                    if (stylefound < 0)
-                    {
-                        box.Styles[styleindex].ForeColor = item.color;
-                        box.Styles[styleindex].BackColor = box.Styles[Style.Default].BackColor;
-                        box.SetStyling(item.selectionlenght, styleindex);
-                        styleindex++;
-                    }
-                    else
-                    {
-                        box.Styles[stylefound].BackColor = box.Styles[Style.Default].BackColor;
-                        box.SetStyling(item.selectionlenght, stylefound);
-                    }
-                }
-            }
-        }
+        
         /// <summary>
         /// Properly disconnect the client when clicking the [X] close button
         /// </summary>

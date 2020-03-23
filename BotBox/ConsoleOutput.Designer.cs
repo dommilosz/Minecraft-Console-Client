@@ -44,7 +44,7 @@ namespace BotBox
             this.box_ip = new DarkUI.Controls.DarkTextBox();
             this.box_password = new DarkUI.Controls.DarkTextBox();
             this.box_Login = new DarkUI.Controls.DarkTextBox();
-            this.box_output = new Scintilla();
+            this.box_output = new RichTextBox();
             this.box_input = new DarkUI.Controls.DarkTextBox();
             this.button2 = new DarkUI.Controls.DarkButton();
             this.darkButton1 = new DarkUI.Controls.DarkButton();
@@ -251,7 +251,7 @@ namespace BotBox
         #endregion
         public DarkComboBox comboBox1;
         public Panel panel1;
-        public Scintilla box_output;
+        public RichTextBox box_output;
         public DarkButton button1;
         public DarkLabel label4;
         public DarkTextBox textBox4;
